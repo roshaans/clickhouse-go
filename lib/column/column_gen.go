@@ -36,6 +36,7 @@ import (
 )
 
 func (t Type) Column(name string, tz *time.Location) (Interface, error) {
+	fmt.Printf("Debug: Column type is: %s\n", string(t))
 	switch t {
 	case "Float32":
 		return &Float32{name: name}, nil
@@ -163,7 +164,14 @@ func (t Type) Column(name string, tz *time.Location) (Interface, error) {
 	case strings.HasPrefix(string(t), "SimpleAggregateFunction"):
 		return (&SimpleAggregateFunction{name: name}).parse(t, tz)
 	case strings.HasPrefix(string(t), "AggregateFunction"):
-		return parseAggregateFunction(name, string(t), tz)
+    fmt.Printf("Debug: Detected AggregateFunction type: %s for column: %s\n", string(t), name)
+    result, err := parseAggregateFunction(name, string(t), tz)
+    if err != nil {
+        fmt.Printf("Error while parsing AggregateFunction: %v\n", err)
+    } else {
+        fmt.Printf("Successfully parsed AggregateFunction: %+v\n", result)
+    }
+    return result, err
 	case strings.HasPrefix(string(t), "Enum8") || strings.HasPrefix(string(t), "Enum16"):
 		return Enum(t, name)
 	case strings.HasPrefix(string(t), "DateTime64"):
@@ -171,6 +179,7 @@ func (t Type) Column(name string, tz *time.Location) (Interface, error) {
 	case strings.HasPrefix(strType, "DateTime") && !strings.HasPrefix(strType, "DateTime64"):
 		return (&DateTime{name: name}).parse(t, tz)
 	}
+	fmt.Printf("Debug: Column name: %s, Type: %s\n", name, string(t))
 	return nil, &UnsupportedColumnTypeError{
 		t: t,
 	}
