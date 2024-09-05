@@ -162,6 +162,8 @@ func (t Type) Column(name string, tz *time.Location) (Interface, error) {
 		return (&LowCardinality{name: name}).parse(t, tz)
 	case strings.HasPrefix(string(t), "SimpleAggregateFunction"):
 		return (&SimpleAggregateFunction{name: name}).parse(t, tz)
+	case strings.HasPrefix(string(t), "AggregateFunction"):
+		return parseAggregateFunction(name, string(t), tz)
 	case strings.HasPrefix(string(t), "Enum8") || strings.HasPrefix(string(t), "Enum16"):
 		return Enum(t, name)
 	case strings.HasPrefix(string(t), "DateTime64"):
